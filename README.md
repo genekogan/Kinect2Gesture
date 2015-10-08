@@ -1,15 +1,13 @@
 ## Blink
 
-Code for Blink, dance performance piece to be performed later in October. More documentation will be added shortly.
+Code for **Blink**, upcoming dance performance piece to be performed later in October, along with Nancy Nowacek and Morgan Hille Refakis. More documentation will be added shortly.
 
-The application trains a gesture classifier including 30 hand-selected gestures, which are collected via KinectV2 skeleton tracker. The gestures are synchronized to a metronome to determine where the initial and final poses are.
-
-The gestures correspond to programming statements, and are performed live in order for a dancer to construct several simple Arduino scripts from body movement alone.
+The application trains a gesture classifier containing 30 hand-selected gestures, which are collected via KinectV2 skeleton tracker. The gestures are synchronized to a metronome to determine where the initial and final poses are, and correspond to programming statements. They are to be performed live in order for a dancer to construct several simple Arduino scripts from body movement alone.
 
 
 #### Requirements
 
-- [OpenFrameworks](https://www.openframeworks.cc)
+- [openFrameworks](http://www.openframeworks.cc) (tested on 0.8.4)
 - [ofxLearn](https://github.com/genekogan/ofxLearn)
 - [ofxControl](https://github.com/genekogan/ofxControl)
 - [ofxKinectV2-OSC](https://github.com/microcosm/ofxKinectV2-OSC)
