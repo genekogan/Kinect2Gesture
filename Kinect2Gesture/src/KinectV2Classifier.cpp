@@ -4,6 +4,7 @@ void KinectV2Classifier::setup(KinectV2 *kinect)
 {
     this->kinect = kinect;
     trained = false;
+    foundUser = false;
     kinect->setToTrackFirstFoundUser(this, &KinectV2Classifier::receiveFirstUser);
     data.setup(205, 0, 32, 8);
     countdownLength = COUNTDOWN_LENGTH;
@@ -20,8 +21,8 @@ void KinectV2Classifier::setup(KinectV2 *kinect)
     gui.setName("Kinect2Gesture");
     gui.addButton("save preset", this, &KinectV2Classifier::eventSave);
     gui.addButton("load preset", this, &KinectV2Classifier::eventLoad);
-    gui.addToggle("calibrating", &calibrating, this, &KinectV2Classifier::eventSetCalibrating);
-    gui.addButton("reset calibration", this, &KinectV2Classifier::eventSetResetCalibration);
+//    gui.addToggle("calibrating", &calibrating, this, &KinectV2Classifier::eventSetCalibrating);
+//    gui.addButton("reset calibration", this, &KinectV2Classifier::eventSetResetCalibration);
     gui.addToggle("recording", this, &KinectV2Classifier::eventSetRecording);
     gui.addButton("train", this, &KinectV2Classifier::eventSetTrain);
     gui.addToggle("predicting", this, &KinectV2Classifier::eventSetPredicting);
@@ -48,6 +49,10 @@ void KinectV2Classifier::eventSave(ofxControlButtonEventArgs & evt)
 
 void KinectV2Classifier::eventLoad(ofxControlButtonEventArgs & evt)
 {
+    if (!foundUser) {
+        ofSystem("Error! You must have a skeleton detected first before loading the preset.");
+        return;
+    }
     ofFileDialogResult result = ofSystemLoadDialog("Select preset", false, ofToDataPath(""));
     if (result.bSuccess) {
         loadPreset(result.filePath);
@@ -57,6 +62,7 @@ void KinectV2Classifier::eventLoad(ofxControlButtonEventArgs & evt)
 void KinectV2Classifier::receiveFirstUser(KinectV2TrackedSkeleton* & skeleton)
 {
     this->skeleton = skeleton;
+    foundUser = true;
     
     vector<string> headers;
     headers.push_back("label");
@@ -101,10 +107,6 @@ void KinectV2Classifier::update()
     }
 
     if (skeleton != NULL) {
-        if (calibrating) {
-            calibrate();
-        }
-        
         if (capturing) {
             captureGesture();
         }
@@ -124,7 +126,7 @@ void KinectV2Classifier::checkOscMessages()
             clock.setBpm(bpm);
         }
         else if (msg.getAddress() == "/calibrating") {
-            setCalibrating(msg.getArgAsInt32(0));
+//            setCalibrating(msg.getArgAsInt32(0));
         }
         else if (msg.getAddress() == "/recording") {
             //setRecording(msg.getArgAsInt32(0) == 1);
@@ -166,8 +168,6 @@ void KinectV2Classifier::setPredicting(bool predicting)
     else {
     
     }
-    cout << "set pred " << predicting << endl;
-
 }
 
 void KinectV2Classifier::getStateVector(vector<float> & currentState)
@@ -191,29 +191,14 @@ void KinectV2Classifier::resetMinMaxRange()
     }
 }
 
-void KinectV2Classifier::setCalibrating(bool calibrating)
-{
-    this->calibrating = calibrating;
-    if (!calibrated && calibrating) {
-        resetMinMaxRange();
-    }
-    calibrated = true;
-}
-
 void KinectV2Classifier::calibrate()
 {
-    vector<float> features;
-    if (twoPhase) {
-        createFeatureVectorTwoPhase(features);
-    }
-    else {
-        createFeatureVector(features);
-    }
-    for (int k = 0; k < features.size(); k++) {
-        if (features[k] < min[k])   min[k] = features[k];
-        if (features[k] > max[k])   max[k] = features[k];
-        
-        
+    vector<vector<float> > entries = data.getEntries();
+    for (int i = 0; i < entries.size(); i++) {
+        for (int j = 1; j < entries[i].size(); j++) {
+            if (entries[i][j] < min[j-1])   min[j-1] = entries[i][j];
+            if (entries[i][j] > max[j-1])   max[j-1] = entries[i][j];
+        }
     }
 }
 
@@ -231,9 +216,7 @@ void KinectV2Classifier::captureGesture()
 
 void KinectV2Classifier::endCaptureGesture()
 {
-    cout << "GO!!!" << endl;
     if (poses.size() == 0) return;
-    cout << "GO 2!!! "<< predicting <<" " << recording << endl;
     
     vector<float> features;
     if (twoPhase) {
@@ -254,7 +237,6 @@ void KinectV2Classifier::endCaptureGesture()
     }
     else if (predicting)
     {
-        cout << "is pred " << endl;
         vector<double> featureVector;
         for (int i = 0; i < features.size(); i++) {
             float featureValue = (double)(features[i] - min[i]) / (max[i] - min[i]);
@@ -267,7 +249,6 @@ void KinectV2Classifier::endCaptureGesture()
 
 void KinectV2Classifier::predictLabel(int predictedLabel)
 {
-    cout << "LABEL !" <<endl;
     ofNotifyEvent(predictionE, predictedLabel, this);
 }
 
@@ -278,6 +259,8 @@ void KinectV2Classifier::setTrainingLabel(int trainingLabel)
 
 void KinectV2Classifier::train()
 {
+    calibrate();
+    
     vector<vector<float> > entries = data.getEntries();
     for (int i = 0; i < entries.size(); i++) {
         int label = entries[i][0];
@@ -290,7 +273,7 @@ void KinectV2Classifier::train()
     }
     
     svm.train();
-//    svm.trainWithGridParameterSearch();
+    //svm.trainWithGridParameterSearch();
     trained = true;
     ofLog(OF_LOG_NOTICE, "Finished training");
 }

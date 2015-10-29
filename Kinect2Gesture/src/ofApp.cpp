@@ -7,27 +7,17 @@ void ofApp::setup(){
     lastMsg = "";
     
     kinect.setup();
-    kinect.setReceiveFromFile("/Users/gene/Code/of_v0.8-4.4_osx_release/addons/ofxKinectV2-OSC/example/bin/data/gestures1.txt");
+    //kinect.setReceiveFromFile("/Users/gene/Code/of_v0.8-4.4_osx_release/addons/ofxKinectV2-OSC/example/bin/data/gestures1.txt");
     ofAddListener(classifier.predictionE, this, &ofApp::labelPredicted);
     classifier.setup(&kinect);
  
     ofBuffer buffer = ofBufferFromFile(ofToDataPath("ip.txt")); // reading into the buffer
-    /*
-    while (!buffer.isLastLine()) {
-        string address = buffer.getNextLine();
-        if (address != "") {
-     
-        }
-    }
-    */
-
     string address = buffer.getText();
     send.setup(address, 1357);
 }
 
 //--------------------------------------------------------------
 void ofApp::labelPredicted(int & prediction) {
-    cout << "got label " << prediction << endl;
     lastMsg = classifier.getClassLabel((int) prediction);
 
     ofxOscMessage msg;

@@ -28,7 +28,6 @@ public:
     void beginCaptureGesture();
     void endCaptureGesture();
     
-    void setCalibrating(bool calibrating);
     void calibrate();
     void resetMinMaxRange();
     
@@ -59,7 +58,7 @@ private:
     void checkOscMessages();
     
     void eventSetBpm(ofxControlSliderEventArgs<int> & evt) {clock.setBpm(evt.value);}
-    void eventSetCalibrating(ofxControlButtonEventArgs & evt) {setCalibrating(evt.value);}
+//    void eventSetCalibrating(ofxControlButtonEventArgs & evt) {setCalibrating(evt.value);}
     void eventSetResetCalibration(ofxControlButtonEventArgs & evt) {resetMinMaxRange();}
     void eventSetCapturing(ofxControlButtonEventArgs & evt) {setCapturing(evt.value);}
 
@@ -80,6 +79,7 @@ private:
     void startCountdown();
     void countdown();
     
+    bool foundUser;
     bool twoPhase;
     NonThreadedBpm clock;
     
