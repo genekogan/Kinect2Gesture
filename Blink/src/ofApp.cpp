@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    font.loadFont("/Users/gene/Code/of_v0.8-4.4_osx_release/apps/SteveDocUMusical/Steve_A_Docu_Musical2/bin/data/verdana.ttf", 48);
+    font.load("/Users/gene/Code/of_v0.8-4.4_osx_release/apps/SteveDocUMusical/Steve_A_Docu_Musical2/bin/data/verdana.ttf", 48);
     
     kinect.setup();
     //kinect.setReceiveFromFile("/Users/gene/Code/of_v0.8-4.4_osx_release/addons/ofxKinectV2-OSC/example/bin/data/gestures1.txt");
@@ -58,7 +58,7 @@ void ofApp::draw(){
     
     if (classifier.getCapturing()) {
         ofSetColor(255, 0, 0);
-        ofCircle(100, ofGetHeight()-100, 100, 100);
+        ofDrawCircle(100, ofGetHeight()-100, 100, 100);
         ofSetColor(255);
     }
     

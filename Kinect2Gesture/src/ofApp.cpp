@@ -3,11 +3,11 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     ofSetWindowPosition(0, 0);
-    font.loadFont("verdana.ttf", 48);
+    font.load("verdana.ttf", 48);
     lastMsg = "";
     
     kinect.setup();
-    //kinect.setReceiveFromFile("/Users/gene/Code/of_v0.8-4.4_osx_release/addons/ofxKinectV2-OSC/example/bin/data/gestures1.txt");
+    kinect.setReceiveFromFile("/Users/gene/Code/of_v0.8-4.4_osx_release/addons/ofxKinectV2-OSC/example/bin/data/gestures1.txt");
     ofAddListener(classifier.predictionE, this, &ofApp::labelPredicted);
     classifier.setup(&kinect);
  
@@ -41,7 +41,7 @@ void ofApp::draw(){
     
     if (classifier.getPredicting()) {
         ofSetColor(0, 120);
-        ofRect(240, 448, 764, 85);
+        ofDrawRectangle(240, 448, 764, 85);
         ofSetColor(0, 230, 0);
         //font.drawString(lastMsg, ofGetWidth()-720, ofGetHeight()-130);
         font.drawString(lastMsg, 304, 516);
@@ -49,7 +49,7 @@ void ofApp::draw(){
     
     if (classifier.getCapturing()) {
         ofSetColor(255, 0, 0, 200);
-        ofCircle(895, 488, 120);
+        ofDrawCircle(895, 488, 120);
         ofSetColor(255);
     }
     
